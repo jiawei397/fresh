@@ -1,7 +1,7 @@
 import { ComponentChildren } from "preact";
 import { useEffect, useState } from "preact/hooks";
 import { IS_BROWSER } from "$fresh/runtime.ts";
-import * as Icons from "../components/Icons.tsx";
+import * as Icons from "../../components/Icons.tsx";
 
 export default function CopyArea(props: { children: ComponentChildren }) {
   const [copied, setCopied] = useState(false);

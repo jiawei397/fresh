@@ -14,10 +14,10 @@ import * as $7 from "./routes/raw.ts";
 import * as $8 from "./routes/showcase.tsx";
 import * as $9 from "./routes/update.tsx";
 import * as $$0 from "./islands/ComponentGallery.tsx";
-import * as $$1 from "./islands/CopyArea.tsx";
-import * as $$2 from "./islands/Counter.tsx";
-import * as $$3 from "./islands/LemonDrop.tsx";
-import * as $$4 from "./islands/SearchButton.tsx";
+import * as $$1 from "./islands/Counter.tsx";
+import * as $$2 from "./islands/LemonDrop.tsx";
+import * as $$3 from "./islands/sub/CopyArea.tsx";
+import * as $$4 from "./islands/sub/SearchButton.tsx";
 
 const manifest = {
   routes: {
@@ -34,10 +34,10 @@ const manifest = {
   },
   islands: {
     "./islands/ComponentGallery.tsx": $$0,
-    "./islands/CopyArea.tsx": $$1,
-    "./islands/Counter.tsx": $$2,
-    "./islands/LemonDrop.tsx": $$3,
-    "./islands/SearchButton.tsx": $$4,
+    "./islands/Counter.tsx": $$1,
+    "./islands/LemonDrop.tsx": $$2,
+    "./islands/sub/CopyArea.tsx": $$3,
+    "./islands/sub/SearchButton.tsx": $$4,
   },
   baseUrl: import.meta.url,
   config,
