@@ -30,6 +30,7 @@ export type {
   RenderFunction,
   RouteConfig,
   StartOptions,
+  TlsStartOptions,
   UnknownHandler,
   UnknownHandlerContext,
   UnknownPageProps,
