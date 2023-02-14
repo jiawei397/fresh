@@ -1,4 +1,4 @@
-import Counter from "../../islands/Counter.tsx";
+import Counter from "../../islands/sub/Counter.tsx";
 import KebabCaseFileNameTest from "../../islands/kebab-case-counter-test.tsx";
 import Test from "../../islands/Test.tsx";
 

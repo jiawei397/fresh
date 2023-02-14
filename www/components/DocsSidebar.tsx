@@ -1,10 +1,9 @@
-import { Head } from "$fresh/runtime.ts";
 import {
   CATEGORIES,
   TableOfContentsCategory,
   TableOfContentsCategoryEntry,
 } from "../data/docs.ts";
-import SearchButton from "../islands/SearchButton.tsx";
+import SearchButton from "../islands/sub/SearchButton.tsx";
 
 export default function DocsSidebar(props: { path: string; mobile?: boolean }) {
   const id = String(Math.random()).replaceAll(".", "");
