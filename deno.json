@@ -1,6 +1,6 @@
 {
   "name": "jw_fresh",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "lock": false,
   "tasks": {
     "test": "deno test -A && deno check --config=www/deno.json www/main.ts www/dev.ts && deno check init.ts",
