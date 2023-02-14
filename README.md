@@ -2,6 +2,16 @@
 
 # fresh
 
+> Forked from **Freshv1.1.3**.
+>
+> This work only merged with other pull requests by `crowlKats` and
+> `AffogatoAlCaffe` who submitted `Render status overwrite` and `HTTPS support`.
+>
+> My project seems to be in urgent need of these two submissions. So this
+> project is only for personal use.
+>
+> When these submissions are merged, the project will be deleted.
+
 <img align="right" src="https://fresh.deno.dev/logo.svg" height="150px" alt="the fresh logo: a sliced lemon dripping with juice">
 
 **Fresh** is a next generation web framework, built for speed, reliability, and
