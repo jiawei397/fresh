@@ -1,8 +1,12 @@
 import {
+  basename,
   ConnInfo,
   extname,
   fromFileUrl,
+  join,
+  relative,
   RequestHandler,
+  resolve,
   rutt,
   Status,
   toFileUrl,
@@ -16,6 +20,8 @@ import { ALIVE_URL, BUILD_ID, JS_PREFIX, REFRESH_JS_URL } from "./constants.ts";
 import DefaultErrorHandler from "./default_error_page.ts";
 import {
   AppModule,
+  CompilerTSConfig,
+  CompilerTSEntryPoints,
   ErrorPage,
   ErrorPageModule,
   FreshOptions,
@@ -35,6 +41,7 @@ import {
 import { render as internalRender } from "./render.ts";
 import { ContentSecurityPolicyDirectives, SELF } from "../runtime/csp.ts";
 import { ASSET_CACHE_BUST_KEY, INTERNAL_PREFIX } from "../runtime/utils.ts";
+
 interface RouterState {
   state: Record<string, unknown>;
 }
@@ -77,6 +84,7 @@ export class ServerContext {
     plugins: Plugin[],
     importMapURL: URL,
     jsxConfig: JSXConfig,
+    compilerTSEntryPoints: CompilerTSEntryPoints,
   ) {
     this.#routes = routes;
     this.#islands = islands;
@@ -94,6 +102,7 @@ export class ServerContext {
       importMapURL,
       jsxConfig,
       this.#dev,
+      compilerTSEntryPoints,
     );
   }
 
@@ -291,6 +300,11 @@ export class ServerContext {
       }
     }
 
+    const compilerTSEntryPoints = await this.getCompilerTSEntryPoints(
+      manifest,
+      opts.compilerTSConfig,
+    );
+
     return new ServerContext(
       routes,
       islands,
@@ -303,7 +317,51 @@ export class ServerContext {
       opts.plugins ?? [],
       importMapURL,
       jsxConfig,
+      compilerTSEntryPoints,
     );
+  }
+
+  private static async getCompilerTSEntryPoints(
+    manifest: Manifest,
+    compilerTSConfig?: CompilerTSConfig[],
+  ): Promise<CompilerTSEntryPoints> {
+    const compilerTSEntryPoints: CompilerTSEntryPoints = {};
+    if (!compilerTSConfig) {
+      return compilerTSEntryPoints;
+    }
+    const walk = async (dir: string, baseURL: string, prefix: string) => {
+      const staticFolder = new URL(
+        dir,
+        manifest.baseUrl,
+      );
+      for await (const dirEntry of Deno.readDir(fromFileUrl(staticFolder))) {
+        if (dirEntry.isFile) {
+          const ext = extname(dirEntry.name);
+          if (![".ts", ".js"].includes(ext)) {
+            continue;
+          }
+          let name = relative(
+            baseURL,
+            join(dir, basename(dirEntry.name, ext)),
+          );
+          if (prefix) {
+            name = prefix + "/" + name;
+          }
+          compilerTSEntryPoints[name] = resolve(
+            staticFolder.pathname,
+            dirEntry.name,
+          );
+        } else if (dirEntry.isDirectory) {
+          await walk(join(dir, dirEntry.name), baseURL, prefix);
+        }
+      }
+    };
+    await Promise.all(
+      compilerTSConfig.map((config) =>
+        walk(config.dir, config.baseURL, config.prefix || "")
+      ),
+    );
+    return compilerTSEntryPoints;
   }
 
   /**

@@ -8,4 +8,9 @@ export default {
       throw new Error("body is missing");
     }
   },
+  compilerTSConfig: [{
+    dir: "./static/ts/",
+    baseURL: "static",
+    // prefix: "base",
+  }],
 } as FreshOptions;

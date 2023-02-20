@@ -37,6 +37,7 @@ export type {
 } from "./types.ts";
 export { RenderContext } from "./render.ts";
 export type { InnerRenderFunction } from "./render.ts";
+export { bundleAssetUrl } from "./constants.ts";
 
 export interface Manifest {
   routes: Record<

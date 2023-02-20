@@ -1,7 +1,7 @@
 import { BuildOptions } from "https://deno.land/x/esbuild@v0.14.51/mod.js";
 import { BUILD_ID } from "./constants.ts";
 import { denoPlugin, esbuild, toFileUrl } from "./deps.ts";
-import { Island, Plugin } from "./types.ts";
+import { CompilerTSEntryPoints, Island, Plugin } from "./types.ts";
 
 export interface JSXConfig {
   jsx: "react" | "react-jsx";
@@ -45,6 +45,7 @@ export class Bundler {
   #plugins: Plugin[];
   #cache: Map<string, Uint8Array> | Promise<void> | undefined = undefined;
   #dev: boolean;
+  #compilerTSEntryPoints: CompilerTSEntryPoints;
 
   constructor(
     islands: Island[],
@@ -52,12 +53,14 @@ export class Bundler {
     importMapURL: URL,
     jsxConfig: JSXConfig,
     dev: boolean,
+    compilerTSEntryPoints: CompilerTSEntryPoints,
   ) {
     this.#islands = islands;
     this.#plugins = plugins;
     this.#importMapURL = importMapURL;
     this.#jsxConfig = jsxConfig;
     this.#dev = dev;
+    this.#compilerTSEntryPoints = compilerTSEntryPoints;
   }
 
   async bundle() {
@@ -75,6 +78,9 @@ export class Bundler {
       for (const [name, url] of Object.entries(plugin.entrypoints ?? {})) {
         entryPoints[`plugin-${plugin.name}-${name}`] = url;
       }
+    }
+    for (const [name, url] of Object.entries(this.#compilerTSEntryPoints)) {
+      entryPoints[name] = url;
     }
 
     const absWorkingDir = Deno.cwd();

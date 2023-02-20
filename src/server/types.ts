@@ -7,10 +7,23 @@ import { InnerRenderFunction, RenderContext } from "./render.ts";
 export type StartOptions = ServeInit & FreshOptions;
 export type TlsStartOptions = FreshOptions & ServeTlsInit & ServeInit;
 
+export interface CompilerTSConfig {
+  dir: string;
+  baseURL: string;
+  prefix?: string;
+}
+
+export type CompilerTSEntryPoints = Record<string, string>;
+
 export interface FreshOptions {
   render?: RenderFunction;
   plugins?: Plugin[];
   staticDir?: string;
+  /**
+   * use to compile TypeScript files by ESBuilder
+   */
+  compilerTSConfig?: CompilerTSConfig[];
+
   /**
    * UNSTABLE: use the `Deno.serve` API as the underlying HTTP server instead of
    * the `std/http` API. Do not use this in production.

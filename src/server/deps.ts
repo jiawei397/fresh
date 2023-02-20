@@ -1,7 +1,11 @@
 // -- std --
 export {
+  basename,
   extname,
   fromFileUrl,
+  join,
+  relative,
+  resolve,
   toFileUrl,
 } from "https://deno.land/std@0.150.0/path/mod.ts";
 export { walk } from "https://deno.land/std@0.150.0/fs/walk.ts";
