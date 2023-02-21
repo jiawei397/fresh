@@ -2,7 +2,7 @@ import {
   checkMiddlewareByPath,
   SPECIAL_ROUTE_EXTS,
   SPECIAL_ROUTE_PATHS,
-} from "../server/constants.ts";
+} from "../globals.ts";
 import {
   dirname,
   extname,

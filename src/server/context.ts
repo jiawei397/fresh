@@ -11,19 +11,11 @@ import {
   Status,
   toFileUrl,
   typeByExtension,
-  walk,
 } from "./deps.ts";
 import { h } from "preact";
 import { Manifest } from "./mod.ts";
 import { Bundler, JSXConfig } from "./bundle.ts";
-import {
-  ALIVE_URL,
-  BUILD_ID,
-  checkMiddlewareByPath,
-  JS_PREFIX,
-  REFRESH_JS_URL,
-  SPECIAL_ROUTE_PATHS,
-} from "./constants.ts";
+import { ALIVE_URL, BUILD_ID, JS_PREFIX, REFRESH_JS_URL } from "./constants.ts";
 import DefaultErrorHandler from "./default_error_page.ts";
 import {
   AppModule,
@@ -48,6 +40,7 @@ import {
 import { render as internalRender } from "./render.ts";
 import { ContentSecurityPolicyDirectives, SELF } from "../runtime/csp.ts";
 import { ASSET_CACHE_BUST_KEY, INTERNAL_PREFIX } from "../runtime/utils.ts";
+import { checkMiddlewareByPath, SPECIAL_ROUTE_PATHS } from "../globals.ts";
 
 interface RouterState {
   state: Record<string, unknown>;
