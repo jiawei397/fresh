@@ -113,6 +113,27 @@ export class ServerContext {
     );
   }
 
+  static async #walk(dir: string, arr: string[] = []) {
+    try {
+      for await (const entry of Deno.readDir(dir)) {
+        const currentPath = dir + "/" + entry.name;
+        if (entry.isDirectory) {
+          await this.#walk(currentPath, arr);
+        } else if (entry.isFile) {
+          arr.push(currentPath);
+        }
+      }
+      return arr;
+    } catch (err) {
+      if (err instanceof Deno.errors.NotFound) {
+        // Do nothing.
+        return [];
+      } else {
+        throw err;
+      }
+    }
+  }
+
   /**
    * Process the manifest into individual components and pages.
    */
@@ -260,47 +281,35 @@ export class ServerContext {
     }
 
     const staticFiles: StaticFile[] = [];
-    try {
-      const staticFolder = new URL(
-        opts.staticDir ?? "./static",
-        manifest.baseUrl,
+    const staticFolder = new URL(
+      opts.staticDir ?? "./static",
+      manifest.baseUrl,
+    );
+    const encoder = new TextEncoder();
+    const entryPaths = await this.#walk(fromFileUrl(staticFolder));
+    await Promise.all(entryPaths.map(async (entryPath) => {
+      const localUrl = toFileUrl(entryPath);
+      const path = localUrl.href.substring(staticFolder.href.length);
+      const stat = await Deno.stat(localUrl);
+      const contentType = typeByExtension(extname(path)) ??
+        "application/octet-stream";
+      const etag = await crypto.subtle.digest(
+        "SHA-1",
+        encoder.encode(BUILD_ID + path),
+      ).then((hash) =>
+        Array.from(new Uint8Array(hash))
+          .map((byte) => byte.toString(16).padStart(2, "0"))
+          .join("")
       );
-      const entires = walk(fromFileUrl(staticFolder), {
-        includeFiles: true,
-        includeDirs: false,
-        followSymlinks: false,
-      });
-      const encoder = new TextEncoder();
-      for await (const entry of entires) {
-        const localUrl = toFileUrl(entry.path);
-        const path = localUrl.href.substring(staticFolder.href.length);
-        const stat = await Deno.stat(localUrl);
-        const contentType = typeByExtension(extname(path)) ??
-          "application/octet-stream";
-        const etag = await crypto.subtle.digest(
-          "SHA-1",
-          encoder.encode(BUILD_ID + path),
-        ).then((hash) =>
-          Array.from(new Uint8Array(hash))
-            .map((byte) => byte.toString(16).padStart(2, "0"))
-            .join("")
-        );
-        const staticFile: StaticFile = {
-          localUrl,
-          path,
-          size: stat.size,
-          contentType,
-          etag,
-        };
-        staticFiles.push(staticFile);
-      }
-    } catch (err) {
-      if (err instanceof Deno.errors.NotFound) {
-        // Do nothing.
-      } else {
-        throw err;
-      }
-    }
+      const staticFile: StaticFile = {
+        localUrl,
+        path,
+        size: stat.size,
+        contentType,
+        etag,
+      };
+      staticFiles.push(staticFile);
+    }));
 
     const compilerTSEntryPoints = await this.getCompilerTSEntryPoints(
       manifest,
