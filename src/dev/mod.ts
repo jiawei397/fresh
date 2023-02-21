@@ -1,4 +1,9 @@
 import {
+  checkMiddlewareByPath,
+  SPECIAL_ROUTE_EXTS,
+  SPECIAL_ROUTE_PATHS,
+} from "../server/constants.ts";
+import {
   dirname,
   extname,
   fromFileUrl,
@@ -70,13 +75,21 @@ export async function collect(directory: string): Promise<Manifest> {
     const routesFolder = walk(routesDir, {
       includeDirs: false,
       includeFiles: true,
-      exts: ["tsx", "jsx", "ts", "js"],
+      exts: SPECIAL_ROUTE_EXTS,
     });
     for await (const entry of routesFolder) {
       if (entry.isFile) {
         const file = toFileUrl(entry.path).href.substring(
           routesUrl.href.length,
         );
+        const filename = "/" + file.split("/").pop();
+        if (
+          filename.startsWith("/_") && !checkMiddlewareByPath(file) &&
+          !SPECIAL_ROUTE_PATHS.includes(filename)
+        ) {
+          console.debug("file will be ignored to join routes: ", file);
+          continue;
+        }
         routes.push(file);
       }
     }

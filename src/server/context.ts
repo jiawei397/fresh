@@ -16,7 +16,14 @@ import {
 import { h } from "preact";
 import { Manifest } from "./mod.ts";
 import { Bundler, JSXConfig } from "./bundle.ts";
-import { ALIVE_URL, BUILD_ID, JS_PREFIX, REFRESH_JS_URL } from "./constants.ts";
+import {
+  ALIVE_URL,
+  BUILD_ID,
+  checkMiddlewareByPath,
+  JS_PREFIX,
+  REFRESH_JS_URL,
+  SPECIAL_ROUTE_PATHS,
+} from "./constants.ts";
 import DefaultErrorHandler from "./default_error_page.ts";
 import {
   AppModule,
@@ -157,9 +164,7 @@ export class ServerContext {
       const path = url.substring(baseUrl.length).substring("routes".length);
       const baseRoute = path.substring(1, path.length - extname(path).length);
       const name = baseRoute.replace("/", "-");
-      const isMiddleware = path.endsWith("/_middleware.tsx") ||
-        path.endsWith("/_middleware.ts") || path.endsWith("/_middleware.jsx") ||
-        path.endsWith("/_middleware.js");
+      const isMiddleware = checkMiddlewareByPath(path);
       if (!path.startsWith("/_") && !isMiddleware) {
         const { default: component, config } = module as RouteModule;
         let pattern = pathToPattern(baseRoute);
@@ -188,48 +193,50 @@ export class ServerContext {
           ...middlewarePathToPattern(baseRoute),
           ...module as MiddlewareModule,
         });
-      } else if (
-        path === "/_app.tsx" || path === "/_app.ts" ||
-        path === "/_app.jsx" || path === "/_app.js"
-      ) {
-        app = module as AppModule;
-      } else if (
-        path === "/_404.tsx" || path === "/_404.ts" ||
-        path === "/_404.jsx" || path === "/_404.js"
-      ) {
-        const { default: component, config } = module as UnknownPageModule;
-        let { handler } = module as UnknownPageModule;
-        if (component && handler === undefined) {
-          handler = (_req, { render }) => render();
-        }
+      } else if (SPECIAL_ROUTE_PATHS.includes(path)) {
+        if (
+          path === "/_app.tsx" || path === "/_app.ts" ||
+          path === "/_app.jsx" || path === "/_app.js"
+        ) {
+          app = module as AppModule;
+        } else if (
+          path === "/_404.tsx" || path === "/_404.ts" ||
+          path === "/_404.jsx" || path === "/_404.js"
+        ) {
+          const { default: component, config } = module as UnknownPageModule;
+          let { handler } = module as UnknownPageModule;
+          if (component && handler === undefined) {
+            handler = (_req, { render }) => render();
+          }
 
-        notFound = {
-          pattern: pathToPattern(baseRoute),
-          url,
-          name,
-          component,
-          handler: handler ?? ((req) => rutt.defaultOtherHandler(req)),
-          csp: Boolean(config?.csp ?? false),
-        };
-      } else if (
-        path === "/_500.tsx" || path === "/_500.ts" ||
-        path === "/_500.jsx" || path === "/_500.js"
-      ) {
-        const { default: component, config } = module as ErrorPageModule;
-        let { handler } = module as ErrorPageModule;
-        if (component && handler === undefined) {
-          handler = (_req, { render }) => render();
-        }
+          notFound = {
+            pattern: pathToPattern(baseRoute),
+            url,
+            name,
+            component,
+            handler: handler ?? ((req) => rutt.defaultOtherHandler(req)),
+            csp: Boolean(config?.csp ?? false),
+          };
+        } else if (
+          path === "/_500.tsx" || path === "/_500.ts" ||
+          path === "/_500.jsx" || path === "/_500.js"
+        ) {
+          const { default: component, config } = module as ErrorPageModule;
+          let { handler } = module as ErrorPageModule;
+          if (component && handler === undefined) {
+            handler = (_req, { render }) => render();
+          }
 
-        error = {
-          pattern: pathToPattern(baseRoute),
-          url,
-          name,
-          component,
-          handler: handler ??
-            ((req, ctx) => rutt.defaultErrorHandler(req, ctx, ctx.error)),
-          csp: Boolean(config?.csp ?? false),
-        };
+          error = {
+            pattern: pathToPattern(baseRoute),
+            url,
+            name,
+            component,
+            handler: handler ??
+              ((req, ctx) => rutt.defaultErrorHandler(req, ctx, ctx.error)),
+            csp: Boolean(config?.csp ?? false),
+          };
+        }
       }
     }
     sortRoutes(routes);
