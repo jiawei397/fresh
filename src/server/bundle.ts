@@ -1,6 +1,6 @@
-import { BuildOptions } from "https://deno.land/x/esbuild@v0.14.51/mod.js";
 import { BUILD_ID } from "./constants.ts";
-import { denoPlugin, esbuild, toFileUrl } from "./deps.ts";
+// deno-lint-ignore no-unused-vars
+import { denoPlugin, esbuild, toFileUrl, type BuildOptions } from "./deps.ts";
 import { CompilerTSEntryPoints, Island, Plugin } from "./types.ts";
 
 export interface JSXConfig {
@@ -12,7 +12,7 @@ let esbuildInitialized: boolean | Promise<void> = false;
 async function ensureEsbuildInitialized() {
   if (esbuildInitialized === false) {
     if (Deno.run === undefined) {
-      const wasmURL = new URL("./esbuild_v0.14.51.wasm", import.meta.url).href;
+      const wasmURL = new URL("./esbuild_v0.17.11.wasm", import.meta.url).href;
       esbuildInitialized = fetch(wasmURL).then(async (r) => {
         const resp = new Response(r.body, {
           headers: { "Content-Type": "application/wasm" },
@@ -85,9 +85,11 @@ export class Bundler {
 
     const absWorkingDir = Deno.cwd();
     await ensureEsbuildInitialized();
+    const plugin = denoPlugin({ importMapURL: this.#importMapURL });
     // In dev-mode we skip identifier minification to be able to show proper
     // component names in Preact DevTools instead of single characters.
-    const minifyOptions: Partial<BuildOptions> = this.#dev
+    // deno-lint-ignore no-explicit-any  
+    const minifyOptions: any = this.#dev  // TODO: BuildOptions esbuild version currently not same, then will update
       ? { minifyIdentifiers: false, minifySyntax: true, minifyWhitespace: true }
       : { minify: true };
     const bundle = await esbuild.build({
@@ -103,7 +105,7 @@ export class Bundler {
       absWorkingDir,
       outfile: "",
       platform: "neutral",
-      plugins: [denoPlugin({ importMapURL: this.#importMapURL })],
+      plugins: [plugin],
       sourcemap: this.#dev ? "linked" : false,
       splitting: true,
       target: ["chrome99", "firefox99", "safari15"],
@@ -124,7 +126,7 @@ export class Bundler {
 
     const cache = new Map<string, Uint8Array>();
     const absDirUrlLength = toFileUrl(absWorkingDir).href.length;
-    for (const file of bundle.outputFiles) {
+    for (const file of bundle.outputFiles!) {
       cache.set(
         toFileUrl(file.path).href.substring(absDirUrlLength),
         file.contents,
