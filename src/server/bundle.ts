@@ -9,7 +9,7 @@ export interface JSXConfig {
 }
 
 let esbuildInitialized: boolean | Promise<void> = false;
-async function ensureEsbuildInitialized() {
+export async function ensureEsbuildInitialized() {
   if (esbuildInitialized === false) {
     if (Deno.run === undefined) {
       const wasmURL = new URL("./esbuild_v0.17.11.wasm", import.meta.url).href;
@@ -24,7 +24,7 @@ async function ensureEsbuildInitialized() {
         });
       });
     } else {
-      esbuild.initialize({});
+      esbuildInitialized = esbuild.initialize({});
     }
     await esbuildInitialized;
     esbuildInitialized = true;

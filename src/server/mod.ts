@@ -1,3 +1,4 @@
+export { ensureEsbuildInitialized } from "./bundle.ts";
 import { ServerContext } from "./context.ts";
 import { serve, serveTls } from "./deps.ts";
 export { Status } from "./deps.ts";
