@@ -175,6 +175,12 @@ export default manifest;
 }
 
 export async function dev(base: string, entrypoint: string) {
+  await devStart(base, entrypoint);
+
+  await import(entrypoint);
+}
+
+export async function devStart(base: string, entrypoint: string) {
   ensureMinDenoVersion();
 
   entrypoint = new URL(entrypoint, base).href;
@@ -196,8 +202,6 @@ export async function dev(base: string, entrypoint: string) {
     !arraysEqual(newManifest.islands, currentManifest.islands);
 
   if (manifestChanged) await generate(dir, newManifest);
-
-  await import(entrypoint);
 }
 
 function arraysEqual<T>(a: T[], b: T[]): boolean {
