@@ -31,7 +31,13 @@ export interface FreshOptions {
    * This option is experimental and may be removed in a future Fresh release.
    */
   experimentalDenoServe?: boolean;
+
+  esbuilderOptions?: ESBuilderOptions;
 }
+
+export type ESBuilderOptions = {
+  target?: string[];
+};
 
 export type RenderFunction = (
   ctx: RenderContext,

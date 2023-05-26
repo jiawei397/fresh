@@ -23,6 +23,7 @@ import {
   CompilerTSEntryPoints,
   ErrorPage,
   ErrorPageModule,
+  ESBuilderOptions,
   FreshOptions,
   Handler,
   Island,
@@ -85,6 +86,7 @@ export class ServerContext {
     importMapURL: URL,
     jsxConfig: JSXConfig,
     compilerTSEntryPoints: CompilerTSEntryPoints,
+    esbuilderOptions?: ESBuilderOptions,
   ) {
     this.#routes = routes;
     this.#islands = islands;
@@ -103,6 +105,7 @@ export class ServerContext {
       jsxConfig,
       this.#dev,
       compilerTSEntryPoints,
+      esbuilderOptions,
     );
   }
 
@@ -322,6 +325,7 @@ export class ServerContext {
       importMapURL,
       jsxConfig,
       compilerTSEntryPoints,
+      opts.esbuilderOptions,
     );
   }
 

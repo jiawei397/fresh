@@ -9,6 +9,7 @@ interface CounterProps {
 
 export default function Counter(props: CounterProps) {
   const [count, setCount] = useState(props.start);
+  // console.log(count, "count111", props?.start); // 测试?.高级语法的转义
   return (
     <div class="bg-gray-100 p-4 border border-gray-200 flex items-center justify-around">
       <RoundedButton

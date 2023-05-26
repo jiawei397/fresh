@@ -1,7 +1,12 @@
 import { BUILD_ID } from "./constants.ts";
 // deno-lint-ignore no-unused-vars
-import { denoPlugin, esbuild, toFileUrl, type BuildOptions } from "./deps.ts";
-import { CompilerTSEntryPoints, Island, Plugin } from "./types.ts";
+import { type BuildOptions, denoPlugin, esbuild, toFileUrl } from "./deps.ts";
+import {
+  CompilerTSEntryPoints,
+  ESBuilderOptions,
+  Island,
+  Plugin,
+} from "./types.ts";
 
 export interface JSXConfig {
   jsx: "react" | "react-jsx";
@@ -46,6 +51,7 @@ export class Bundler {
   #cache: Map<string, Uint8Array> | Promise<void> | undefined = undefined;
   #dev: boolean;
   #compilerTSEntryPoints: CompilerTSEntryPoints;
+  #esbuilderOptions?: ESBuilderOptions;
 
   constructor(
     islands: Island[],
@@ -54,6 +60,7 @@ export class Bundler {
     jsxConfig: JSXConfig,
     dev: boolean,
     compilerTSEntryPoints: CompilerTSEntryPoints,
+    esbuilderOptions?: ESBuilderOptions,
   ) {
     this.#islands = islands;
     this.#plugins = plugins;
@@ -61,6 +68,7 @@ export class Bundler {
     this.#jsxConfig = jsxConfig;
     this.#dev = dev;
     this.#compilerTSEntryPoints = compilerTSEntryPoints;
+    this.#esbuilderOptions = esbuilderOptions;
   }
 
   async bundle() {
@@ -88,8 +96,8 @@ export class Bundler {
     const plugin = denoPlugin({ importMapURL: this.#importMapURL });
     // In dev-mode we skip identifier minification to be able to show proper
     // component names in Preact DevTools instead of single characters.
-    // deno-lint-ignore no-explicit-any  
-    const minifyOptions: any = this.#dev  // TODO: BuildOptions esbuild version currently not same, then will update
+    // deno-lint-ignore no-explicit-any
+    const minifyOptions: any = this.#dev // TODO: BuildOptions esbuild version currently not same, then will update
       ? { minifyIdentifiers: false, minifySyntax: true, minifyWhitespace: true }
       : { minify: true };
     const bundle = await esbuild.build({
@@ -108,11 +116,13 @@ export class Bundler {
       plugins: [plugin],
       sourcemap: this.#dev ? "linked" : false,
       splitting: true,
-      target: ["chrome99", "firefox99", "safari15"],
+      target: ["chrome75", "firefox73", "safari13"],
+      // target: ["chrome99", "firefox99", "safari15"],
       treeShaking: true,
       write: false,
       jsx: JSX_RUNTIME_MODE[this.#jsxConfig.jsx],
       jsxImportSource: this.#jsxConfig.jsxImportSource,
+      ...this.#esbuilderOptions,
     });
     // const metafileOutputs = bundle.metafile!.outputs;
 
