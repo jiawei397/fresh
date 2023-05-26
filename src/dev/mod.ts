@@ -175,15 +175,14 @@ export default manifest;
 }
 
 export async function dev(base: string, entrypoint: string) {
-  await devStart(base, entrypoint);
+  await devStart(base);
 
-  await import(entrypoint);
+  const entrypointUrl = new URL(entrypoint, base).href;
+  await import(entrypointUrl);
 }
 
-export async function devStart(base: string, entrypoint: string) {
+export async function devStart(base: string) {
   ensureMinDenoVersion();
-
-  entrypoint = new URL(entrypoint, base).href;
 
   const dir = dirname(fromFileUrl(base));
 
