@@ -289,7 +289,7 @@ export async function render<Data>(
       ];
     }
     bodyHtml +=
-      `<script type="module" nonce="${randomNonce}">${script}</script>`;
+      `<script type="module" nonce="${randomNonce}" defer>${script}</script>`;
   }
 
   if (ctx.styles.length > 0) {
@@ -344,7 +344,7 @@ export function template(opts: TemplateOptions): string {
         h("link", { rel: "modulepreload", href: src })
       ),
       opts.imports.map(([src, nonce]) =>
-        h("script", { src: src, nonce: nonce, type: "module" })
+        h("script", { src: src, nonce: nonce, type: "module", defer: true })
       ),
       opts.headComponents,
     ),
