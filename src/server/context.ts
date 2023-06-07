@@ -355,14 +355,8 @@ export class ServerContext {
           if (prefix) {
             name = prefix + "/" + name;
           }
-          const folderPathName = Deno.build.os === "windows"
-            ? staticFolder.pathname.substring(1) // windows may be /E:/xxx/xx
-            : staticFolder.pathname;
-
-          compilerTSEntryPoints[name] = resolve(
-            folderPathName,
-            dirEntry.name,
-          );
+          compilerTSEntryPoints[name] =
+            new URL(dirEntry.name, staticFolder.href + "/" + prefix).href;
         } else if (dirEntry.isDirectory) {
           await walk(join(dir, dirEntry.name), baseURL, prefix);
         }
