@@ -355,8 +355,12 @@ export class ServerContext {
           if (prefix) {
             name = prefix + "/" + name;
           }
+          const folderPathName = Deno.build.os === "windows"
+            ? staticFolder.pathname.substring(1) // windows may be /E:/xxx/xx
+            : staticFolder.pathname;
+
           compilerTSEntryPoints[name] = resolve(
-            staticFolder.pathname,
+            folderPathName,
             dirEntry.name,
           );
         } else if (dirEntry.isDirectory) {
