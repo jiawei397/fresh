@@ -15,5 +15,8 @@ await start(manifest, {
     compilerTSConfig: [{
         dir: "static/ts",
         baseURL: "static",
-    }]
+    }],
+    esbuilderOptions: {
+        target: ["chrome99", "firefox99", "safari15"],
+    }
 });

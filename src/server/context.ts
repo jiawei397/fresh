@@ -27,6 +27,7 @@ import {
   CompilerTSEntryPoints,
   ErrorPage,
   ErrorPageModule,
+  ESBuilderOptions,
   FreshOptions,
   Handler,
   Island,
@@ -116,6 +117,7 @@ export class ServerContext {
     dev: boolean = isDevMode(),
     routerOptions: RouterOptions,
     compilerTSEntryPoints: CompilerTSEntryPoints,
+    esbuilderOptions?: ESBuilderOptions,
   ) {
     this.#routes = routes;
     this.#islands = islands;
@@ -133,6 +135,7 @@ export class ServerContext {
       configPath,
       dev: this.#dev,
       jsxConfig,
+      esbuilderOptions,
     });
     this.#routerOptions = routerOptions;
   }
@@ -369,6 +372,7 @@ export class ServerContext {
       dev,
       opts.router ?? DEFAULT_ROUTER_OPTIONS,
       compilerTSEntryPoints,
+      opts.esbuilderOptions,
     );
   }
 

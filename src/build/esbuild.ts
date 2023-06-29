@@ -1,3 +1,4 @@
+import { ESBuilderOptions } from "../server/types.ts";
 import {
   denoPlugins,
   esbuild,
@@ -20,6 +21,7 @@ export interface EsbuildBuilderOptions {
   configPath: string;
   /** The JSX configuration. */
   jsxConfig: JSXConfig;
+  esbuilderOptions?: ESBuilderOptions;
 }
 
 export interface JSXConfig {
@@ -55,8 +57,7 @@ export class EsbuildBuilder implements Builder {
         entryPoints: opts.entrypoints,
 
         platform: "browser",
-        target: ["chrome99", "firefox99", "safari15"],
-
+        target: ["chrome75", "firefox73", "safari13"], // ["chrome99", "firefox99", "safari15"],
         format: "esm",
         bundle: true,
         splitting: true,
@@ -76,6 +77,7 @@ export class EsbuildBuilder implements Builder {
           buildIdPlugin(opts.buildID),
           ...denoPlugins({ configPath: opts.configPath }),
         ],
+        ...this.#options.esbuilderOptions,
       });
 
       const files = new Map<string, Uint8Array>();
