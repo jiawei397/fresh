@@ -23,6 +23,8 @@ import { BUILD_ID } from "./build_id.ts";
 import DefaultErrorHandler from "./default_error_page.ts";
 import {
   AppModule,
+  CompilerTSConfig,
+  CompilerTSEntryPoints,
   ErrorPage,
   ErrorPageModule,
   FreshOptions,
@@ -50,6 +52,7 @@ import {
   EsbuildBuilder,
   JSXConfig,
 } from "../build/mod.ts";
+import { basename, relative } from "../dev/deps.ts";
 
 const DEFAULT_CONN_INFO: ConnInfo = {
   localAddr: { transport: "tcp", hostname: "localhost", port: 8080 },
@@ -112,6 +115,7 @@ export class ServerContext {
     jsxConfig: JSXConfig,
     dev: boolean = isDevMode(),
     routerOptions: RouterOptions,
+    compilerTSEntryPoints: CompilerTSEntryPoints,
   ) {
     this.#routes = routes;
     this.#islands = islands;
@@ -125,7 +129,7 @@ export class ServerContext {
     this.#dev = dev;
     this.#builder = new EsbuildBuilder({
       buildID: BUILD_ID,
-      entrypoints: collectEntrypoints(this.#dev, this.#islands, this.#plugins),
+      entrypoints: collectEntrypoints(this.#dev, this.#islands, this.#plugins, compilerTSEntryPoints),
       configPath,
       dev: this.#dev,
       jsxConfig,
@@ -339,6 +343,11 @@ export class ServerContext {
       }
     }
 
+    const compilerTSEntryPoints = await this.getCompilerTSEntryPoints(
+      manifest,
+      opts.compilerTSConfig,
+    );
+
     const dev = isDevMode();
     if (dev) {
       // Ensure that debugging hooks are set up for SSR rendering
@@ -359,8 +368,51 @@ export class ServerContext {
       jsxConfig,
       dev,
       opts.router ?? DEFAULT_ROUTER_OPTIONS,
+      compilerTSEntryPoints,
     );
   }
+
+  private static async getCompilerTSEntryPoints(
+    manifest: Manifest,
+    compilerTSConfig?: CompilerTSConfig[],
+  ): Promise<CompilerTSEntryPoints> {
+    const compilerTSEntryPoints: CompilerTSEntryPoints = {};
+    if (!compilerTSConfig) {
+      return compilerTSEntryPoints;
+    }
+    const walk = async (dir: string, baseURL: string, prefix: string) => {
+      const staticFolder = new URL(
+        dir,
+        manifest.baseUrl,
+      );
+      for await (const dirEntry of Deno.readDir(fromFileUrl(staticFolder))) {
+        if (dirEntry.isFile) {
+          const ext = extname(dirEntry.name);
+          if (![".ts", ".js"].includes(ext)) {
+            continue;
+          }
+          let name = relative(
+            baseURL,
+            join(dir, basename(dirEntry.name, ext)),
+          );
+          if (prefix) {
+            name = prefix + "/" + name;
+          }
+          compilerTSEntryPoints[name] =
+            new URL(dirEntry.name, staticFolder.href + "/" + prefix).href;
+        } else if (dirEntry.isDirectory) {
+          await walk(join(dir, dirEntry.name), baseURL, prefix);
+        }
+      }
+    };
+    await Promise.all(
+      compilerTSConfig.map((config) =>
+        walk(config.dir, config.baseURL, config.prefix || "")
+      ),
+    );
+    return compilerTSEntryPoints;
+  }
+
 
   /**
    * This functions returns a request handler that handles all routes required
@@ -979,6 +1031,7 @@ function collectEntrypoints(
   dev: boolean,
   islands: Island[],
   plugins: Plugin[],
+  compilerTSEntryPoints?: CompilerTSEntryPoints,
 ): Record<string, string> {
   const entrypointBase = "../runtime/entrypoints";
   const entryPoints: Record<string, string> = {
@@ -1002,6 +1055,12 @@ function collectEntrypoints(
   for (const plugin of plugins) {
     for (const [name, url] of Object.entries(plugin.entrypoints ?? {})) {
       entryPoints[`plugin-${plugin.name}-${name}`] = url;
+    }
+  }
+
+  if (compilerTSEntryPoints) {
+    for (const [name, url] of Object.entries(compilerTSEntryPoints)) {
+      entryPoints[name] = url;
     }
   }
 

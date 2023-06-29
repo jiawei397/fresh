@@ -10,6 +10,9 @@ import * as Icons from "../components/Icons.tsx";
 import Projects from "../components/Projects.tsx";
 import projects from "../data/showcase.json" assert { type: "json" };
 import Header from "../components/Header.tsx";
+import { bundleAssetUrl } from "$fresh/src/server/constants.ts";
+
+export const ts_base_url = bundleAssetUrl("/ts");
 
 function isOpenGraphUA(header: string | null): boolean {
   if (!header) {
@@ -51,6 +54,7 @@ export default function MainPage(props: PageProps) {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={props.url.href} />
         <meta property="og:image" content={ogImageUrl} />
+        <script src={ts_base_url + "/test.js"} defer></script>
       </Head>
 
       <div class="flex flex-col min-h-screen">

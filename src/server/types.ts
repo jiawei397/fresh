@@ -20,7 +20,25 @@ export interface FreshOptions {
   plugins?: Plugin[];
   staticDir?: string;
   router?: RouterOptions;
+  /**
+  * use to compile TypeScript files by ESBuilder
+  */
+  compilerTSConfig?: CompilerTSConfig[];
+
+  esbuilderOptions?: ESBuilderOptions;
 }
+
+export interface CompilerTSConfig {
+  dir: string;
+  baseURL: string;
+  prefix?: string;
+}
+
+export type CompilerTSEntryPoints = Record<string, string>;
+
+export type ESBuilderOptions = {
+  target?: string[];
+};
 
 export interface RouterOptions {
   /**
@@ -83,7 +101,7 @@ export interface RouteConfig {
 }
 
 // deno-lint-ignore no-empty-interface
-export interface RenderOptions extends ResponseInit {}
+export interface RenderOptions extends ResponseInit { }
 
 export interface HandlerContext<Data = unknown, State = Record<string, unknown>>
   extends ConnInfo {
