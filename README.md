@@ -5,6 +5,19 @@
 
 <img align="right" src="https://fresh.deno.dev/logo.svg" height="150px" alt="the fresh logo: a sliced lemon dripping with juice">
 
+Forked from Fresh v1.2.0 and some features:
+
+1. Support compile TypeScript dir with ESBuild.
+2. Changed default ESBuild target to support old Browsers.
+3. Init Esbuild before which may be needed in Docker.
+
+My project seems to be in urgent need of these two submissions. So this project
+is only for personal use.
+
+---
+
+Below is origin docs.
+
 **Fresh** is a next generation web framework, built for speed, reliability, and
 simplicity.
 

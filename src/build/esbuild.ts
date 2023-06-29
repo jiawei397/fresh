@@ -111,7 +111,7 @@ const JSX_RUNTIME_MODE = {
   "react-jsx": "automatic",
 } as const;
 
-async function initEsbuild() {
+export async function initEsbuild() {
   // deno-lint-ignore no-deprecated-deno-api
   if (Deno.run === undefined) {
     await esbuild.initialize({
