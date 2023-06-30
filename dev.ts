@@ -1,2 +1,4 @@
-import { dev } from "./src/dev/mod.ts";
+import { dev, devStart } from "./src/dev/mod.ts";
 export default dev;
+
+export { devStart };

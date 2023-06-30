@@ -77,28 +77,24 @@ export async function generate(directory: string, manifest: Manifest) {
 // This file SHOULD be checked into source version control.
 // This file is automatically updated during development when running \`dev.ts\`.
 
-${
-    routes.map((file, i) => `import * as $${i} from "./routes${file}";`).join(
-      "\n",
-    )
-  }
-${
-    islands.map((file, i) => `import * as $$${i} from "./islands${file}";`)
+${routes.map((file, i) => `import * as $${i} from "./routes${file}";`).join(
+    "\n",
+  )
+    }
+${islands.map((file, i) => `import * as $$${i} from "./islands${file}";`)
       .join("\n")
-  }
+    }
 
 const manifest = {
   routes: {
-    ${
-    routes.map((file, i) => `${JSON.stringify(`./routes${file}`)}: $${i},`)
+    ${routes.map((file, i) => `${JSON.stringify(`./routes${file}`)}: $${i},`)
       .join("\n    ")
-  }
+    }
   },
   islands: {
-    ${
-    islands.map((file, i) => `${JSON.stringify(`./islands${file}`)}: $$${i},`)
+    ${islands.map((file, i) => `${JSON.stringify(`./islands${file}`)}: $$${i},`)
       .join("\n    ")
-  }
+    }
   },
   baseUrl: import.meta.url,
 };
@@ -132,10 +128,8 @@ export default manifest;
   );
 }
 
-export async function dev(base: string, entrypoint: string) {
+export async function devStart(base: string) {
   ensureMinDenoVersion();
-
-  entrypoint = new URL(entrypoint, base).href;
 
   const dir = dirname(fromFileUrl(base));
 
@@ -154,8 +148,12 @@ export async function dev(base: string, entrypoint: string) {
     !arraysEqual(newManifest.islands, currentManifest.islands);
 
   if (manifestChanged) await generate(dir, newManifest);
+}
 
-  await import(entrypoint);
+export async function dev(base: string, entrypoint: string) {
+  await devStart(base);
+  const entry = new URL(entrypoint, base).href;
+  await import(entry);
 }
 
 function arraysEqual<T>(a: T[], b: T[]): boolean {
