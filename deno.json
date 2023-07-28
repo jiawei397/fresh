@@ -1,6 +1,6 @@
 {
   "name": "jw_fresh",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Forked from Fresh v1.3.0",
   "lock": false,
   "tasks": {
