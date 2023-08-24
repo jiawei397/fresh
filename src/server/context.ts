@@ -474,11 +474,10 @@ export class ServerContext {
       jsxConfig,
       dev,
       opts.router ?? DEFAULT_ROUTER_OPTIONS,
+      snapshot,
       // HEAD
       compilerTSEntryPoints,
       opts.esbuilderOptions,
-      //
-      snapshot,
     ) //main
     ;
   }
