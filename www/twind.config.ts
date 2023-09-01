@@ -1,15 +1,21 @@
-import { Options } from "$fresh/plugins/twind.ts";
-import * as colors from "twind/colors";
-
-export default {
-  selfURL: import.meta.url,
+import type { Options } from "$fresh/plugins/twindv1.ts";
+import { defineConfig, type Preset } from "twind";
+import * as colors from "@twind/preset-tailwind/colors.js";
+// twind preset
+import presetTailwind from "@twind/preset-tailwind";
+import presetAutoprefix from "@twind/preset-autoprefix";
+const config = defineConfig({
+  presets: [
+    presetTailwind() as Preset,
+    presetAutoprefix(),
+  ],
   theme: {
     colors: {
       blue: colors.blue,
-      black: colors.black,
+      black: "#000",
       gray: colors.gray,
       green: colors.green,
-      white: colors.white,
+      white: "#fff",
       yellow: colors.yellow,
       transparent: "transparent",
     },
@@ -17,7 +23,7 @@ export default {
   plugins: {
     // Basic workaround for old twind version not supporting
     // the `basis-*` keyword
-    basis: (parts) => {
+    basis: (parts: string[]) => {
       let value;
       const arr = parts[0].split("/");
       if (arr.length === 2) {
@@ -49,4 +55,9 @@ export default {
       };
     },
   },
+});
+
+export default {
+  ...config,
+  selfURL: import.meta.url,
 } as Options;

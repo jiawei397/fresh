@@ -1,5 +1,5 @@
 import { stringify, virtual } from "./twindv1_deps.ts";
-import { Plugin } from "../server.ts";
+import { Plugin, PluginRenderScripts } from "../server.ts";
 
 import { Options, setup, STYLE_ELEMENT_ID } from "./twindv1/shared.ts";
 export type { Options };
@@ -16,9 +16,10 @@ export default function(state) { hydrate(options, state); }`;
     name: "twind",
     entrypoints: { "main": main },
     async renderAsync(ctx) {
+      // deno-lint-ignore no-await-in-sync-fn
       const res = await ctx.renderAsync();
       const cssText = stringify(sheet.target);
-      const scripts = [];
+      const scripts: PluginRenderScripts[] = [];
       if (res.requiresHydration) {
         scripts.push({ entrypoint: "main", state: [] });
       }
