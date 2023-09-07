@@ -24,10 +24,12 @@ export async function build(
   const snapshot = await ctx.buildSnapshot();
 
   // Write output files to disk
-  await Promise.all(snapshot.paths.map((fileName) => {
+  await Promise.all(snapshot.paths.map(async (fileName) => {
     const data = snapshot.read(fileName);
     if (data === null) return;
 
+    console.log(join(outDir, fileName));
+    await fs.ensureDir(dirname(join(outDir, fileName)));
     return Deno.writeFile(join(outDir, fileName), data);
   }));
 
