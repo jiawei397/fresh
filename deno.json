@@ -1,7 +1,7 @@
 {
   "name": "jw_fresh",
-  "version": "0.8.2",
-  "description": "Forked from Fresh v1.3.0",
+  "version": "1.0.0",
+  "description": "Forked from Fresh v1.4.0",
   "lock": false,
   "tasks": {
     "test": "deno test -A --parallel",
