@@ -27,8 +27,6 @@ export async function build(
   await Promise.all(snapshot.paths.map(async (fileName) => {
     const data = snapshot.read(fileName);
     if (data === null) return;
-
-    console.log(join(outDir, fileName));
     await fs.ensureDir(dirname(join(outDir, fileName)));
     return Deno.writeFile(join(outDir, fileName), data);
   }));
