@@ -4,16 +4,11 @@ import { FreshOptions } from "../server/mod.ts";
 import { build } from "./build.ts";
 import { collect, ensureMinDenoVersion, generate, Manifest } from "./mod.ts";
 
-async function start(
-  base: string,
-  entrypoint: string,
-) {
+async function check(base: string) {
   ensureMinDenoVersion();
 
   // Run update check in background
   updateCheck(DAY).catch(() => {});
-
-  entrypoint = new URL(entrypoint, base).href;
 
   const dir = dirname(fromFileUrl(base));
 
@@ -39,16 +34,16 @@ export async function dev(
   base: string,
   entrypoint: string,
 ) {
-  await start(base, entrypoint);
+  await check(base);
+  entrypoint = new URL(entrypoint, base).href;
   await import(entrypoint);
 }
 
 export async function buildFresh(
   base: string,
-  entrypoint: string,
   options: FreshOptions = {},
 ) {
-  const dir = await start(base, entrypoint);
+  const dir = await check(base);
   await build(join(dir, "fresh.gen.ts"), options);
 }
 
