@@ -2,7 +2,7 @@
   "lock": false,
   "tasks": {
     "start": "deno run -A --watch=static/,routes/ dev.ts",
-    "build": "deno run -A dev.ts build",
+    "build": "deno run -A build.ts",
     "preview": "deno run -A main.ts"
   },
   "imports": {

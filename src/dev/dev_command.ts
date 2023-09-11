@@ -4,10 +4,9 @@ import { FreshOptions } from "../server/mod.ts";
 import { build } from "./build.ts";
 import { collect, ensureMinDenoVersion, generate, Manifest } from "./mod.ts";
 
-export async function dev(
+async function start(
   base: string,
   entrypoint: string,
-  options: FreshOptions = {},
 ) {
   ensureMinDenoVersion();
 
@@ -33,12 +32,24 @@ export async function dev(
     !arraysEqual(newManifest.islands, currentManifest.islands);
 
   if (manifestChanged) await generate(dir, newManifest);
+  return dir;
+}
 
-  if (Deno.args.includes("build")) {
-    await build(join(dir, "fresh.gen.ts"), options);
-  } else {
-    await import(entrypoint);
-  }
+export async function dev(
+  base: string,
+  entrypoint: string,
+) {
+  await start(base, entrypoint);
+  await import(entrypoint);
+}
+
+export async function buildFresh(
+  base: string,
+  entrypoint: string,
+  options: FreshOptions = {},
+) {
+  const dir = await start(base, entrypoint);
+  await build(join(dir, "fresh.gen.ts"), options);
 }
 
 function arraysEqual<T>(a: T[], b: T[]): boolean {

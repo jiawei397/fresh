@@ -536,14 +536,28 @@ await Deno.writeTextFile(MAIN_TS_PATH, MAIN_TS);
 const DEV_TS = `#!/usr/bin/env -S deno run -A --watch=static/,routes/
 
 import dev from "$fresh/dev.ts";
-import config from "./fresh.config.ts";
 
-await dev(import.meta.url, "./main.ts", config);
+await dev(import.meta.url, "./main.ts");
 `;
 const DEV_TS_PATH = join(resolvedDirectory, "dev.ts");
 await Deno.writeTextFile(DEV_TS_PATH, DEV_TS);
 try {
   await Deno.chmod(DEV_TS_PATH, 0o777);
+} catch {
+  // this throws on windows
+}
+
+const BUILD_TS = `#!/usr/bin/env -S deno run -A
+
+import { build } from "$fresh/dev.ts";
+import config from "./fresh.config.ts";
+
+await build(import.meta.url, "./main.ts", config);
+`;
+const BUILD_TS_PATH = join(resolvedDirectory, "build.ts");
+await Deno.writeTextFile(BUILD_TS_PATH, BUILD_TS);
+try {
+  await Deno.chmod(BUILD_TS_PATH, 0o777);
 } catch {
   // this throws on windows
 }
@@ -554,7 +568,7 @@ const config = {
     check:
       "deno fmt --check && deno lint && deno check **/*.ts && deno check **/*.tsx",
     start: "deno run -A --watch=static/,routes/ dev.ts",
-    build: "deno run -A dev.ts build",
+    build: "deno run -A build.ts",
     preview: "deno run -A main.ts",
     update: "deno run -A -r https://fresh.deno.dev/update .",
   },
