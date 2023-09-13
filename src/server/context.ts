@@ -13,7 +13,12 @@ import {
 import { ComponentType, h } from "preact";
 import * as router from "./router.ts";
 import { DenoConfig, Manifest } from "./mod.ts";
-import { ALIVE_URL, JS_PREFIX, REFRESH_JS_URL } from "./constants.ts";
+import {
+  ALIVE_URL,
+  INTERNAL_PREFIX,
+  JS_PREFIX,
+  REFRESH_JS_URL,
+} from "./constants.ts";
 import { BUILD_ID, setBuildId } from "./build_id.ts";
 import DefaultErrorHandler from "./default_error_page.ts";
 import {
@@ -453,8 +458,6 @@ export class ServerContext {
       opts.compilerTSConfig,
     );
 
-    const dev = isDevMode();
-    //
     const dev = opts.dev ?? isDevMode();
     //main
     if (dev) {
