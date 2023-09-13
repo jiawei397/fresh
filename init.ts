@@ -537,27 +537,14 @@ const DEV_TS = `#!/usr/bin/env -S deno run -A --watch=static/,routes/
 
 import dev from "$fresh/dev.ts";
 
-await dev(import.meta.url, "./main.ts");
+import "$std/dotenv/load.ts";
+
+await dev(import.meta.url, "./main.ts", config);
 `;
 const DEV_TS_PATH = join(resolvedDirectory, "dev.ts");
 await Deno.writeTextFile(DEV_TS_PATH, DEV_TS);
 try {
   await Deno.chmod(DEV_TS_PATH, 0o777);
-} catch {
-  // this throws on windows
-}
-
-const BUILD_TS = `#!/usr/bin/env -S deno run -A
-
-import { build } from "$fresh/dev.ts";
-import config from "./fresh.config.ts";
-
-await build(import.meta.url, "./main.ts", config);
-`;
-const BUILD_TS_PATH = join(resolvedDirectory, "build.ts");
-await Deno.writeTextFile(BUILD_TS_PATH, BUILD_TS);
-try {
-  await Deno.chmod(BUILD_TS_PATH, 0o777);
 } catch {
   // this throws on windows
 }
